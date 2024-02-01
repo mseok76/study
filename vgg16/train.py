@@ -15,10 +15,10 @@ parser.add_argument("--lr",type = float,default=0.0001)
 
 arg = parser.parse_args()
 
-print(f"\n\nActivation : {arg.activation}\tLearning rate : {arg.lr}")
+print(f"Activation : {arg.activation}\tLearning rate : {arg.lr}")
 
 DEVICE = torch.device('cuda'if torch.cuda.is_available() else 'cpu')
-print(DEVICE+"\n")
+print(DEVICE)
 def main():
     #dataload
     transform = transforms.Compose([
@@ -52,9 +52,10 @@ def main():
         valid_acc = 0.0
 
         vgg.train()
-
+        step = 0
         for i, sample in enumerate(train_loader):
-            optimizer.zero_grad()
+            step += 1
+            
             inputs, labels = sample
             inputs = inputs.to(DEVICE)
             labels = labels.to(DEVICE)
@@ -63,17 +64,23 @@ def main():
             _, predicted = torch.max(outputs, 1)
             train_correct = torch.sum(predicted == labels).item()
             loss = criterion(outputs, labels)
+
+            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
             
             train_loss += loss.item()
             train_acc += train_correct
 
-        print(f"Train Loss : {train_acc:.4f}\tTrain Acc : {train_acc:.4f}")
+        train_loss = train_loss/step
+        train_acc = train_acc/step
+        print(f"Train Loss : {train_loss:.6f}\tTrain Acc : {train_acc:.4f}")
         
         with torch.no_grad():
             vgg.eval()
+            step = 0
             for i,sample in enumerate(valid_loader):
+                step += 1
                 optimizer.zero_grad()
                 inputs, labels = sample
                 inputs = inputs.to(DEVICE)
@@ -83,11 +90,14 @@ def main():
                 _, predicted = torch.max(outputs, 1)
                 valid_correct = torch.sum(predicted == labels).item()
                 loss = criterion(outputs,labels)
+
                 valid_loss += loss.item()
                 valid_acc += valid_correct
 
-            print(f"Valid Loss : {valid_acc:.4f}\tValid Acc : {valid_acc:.4f}")
-
+            valid_acc = valid_acc/step
+            valid_loss = valid_loss/step
+            print(f"Valid Loss : {valid_loss:.6f}\tValid Acc : {valid_acc:.4f}")
+    print("\n\n")
 
 if __name__ == '__main__':
     main()
