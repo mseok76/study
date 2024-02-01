@@ -14,8 +14,11 @@ parser.add_argument("--activation",type = str, default = 'ReLU')
 parser.add_argument("--lr",type = float,default=0.0001)
 
 arg = parser.parse_args()
+
+print(f"\n\nActivation : {arg.activation}\tLearning rate : {arg.lr}")
+
 DEVICE = torch.device('cuda'if torch.cuda.is_available() else 'cpu')
-print(DEVICE)
+print(DEVICE+"\n")
 def main():
     #dataload
     transform = transforms.Compose([
