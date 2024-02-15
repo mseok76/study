@@ -1,0 +1,81 @@
+Activation : ELU	Learning rate : 0.01
+cuda
+Train data 	60000
+Valid data 	10000
+Train Loss : 0.246007	Train Acc : 59.2729
+Valid Loss : 0.094069	Valid Acc : 61.9745
+Train Loss : 0.082599	Train Acc : 62.5490
+Valid Loss : 0.135383	Valid Acc : 61.3439
+Train Loss : 0.066051	Train Acc : 62.8539
+Valid Loss : 0.046623	Valid Acc : 62.9554
+Train Loss : 0.059048	Train Acc : 63.0160
+Valid Loss : 0.041478	Valid Acc : 63.0255
+Train Loss : 0.061416	Train Acc : 63.0341
+Valid Loss : 0.045176	Valid Acc : 63.0127
+Train Loss : 0.049611	Train Acc : 63.2249
+Valid Loss : 0.043986	Valid Acc : 63.0573
+Train Loss : 0.058095	Train Acc : 63.1418
+Valid Loss : 0.053434	Valid Acc : 62.9745
+Train Loss : 0.048668	Train Acc : 63.2921
+Valid Loss : 0.098526	Valid Acc : 62.6242
+Train Loss : 0.052330	Train Acc : 63.2708
+Valid Loss : 0.058313	Valid Acc : 63.0382
+Train Loss : 0.041987	Train Acc : 63.4339
+Valid Loss : 0.051055	Valid Acc : 63.1146
+
+
+
+Activation : ELU	Learning rate : 0.001
+cuda
+Train data 	60000
+Valid data 	10000
+Train Loss : 0.100558	Train Acc : 61.9499
+Valid Loss : 0.031009	Valid Acc : 63.1019
+Train Loss : 0.043222	Train Acc : 63.1141
+Valid Loss : 0.026705	Valid Acc : 63.1019
+Train Loss : 0.032792	Train Acc : 63.3273
+Valid Loss : 0.028748	Valid Acc : 63.1083
+Train Loss : 0.027953	Train Acc : 63.3774
+Valid Loss : 0.028794	Valid Acc : 63.0637
+Train Loss : 0.025867	Train Acc : 63.4733
+Valid Loss : 0.038011	Valid Acc : 62.9873
+Train Loss : 0.023205	Train Acc : 63.5235
+Valid Loss : 0.029169	Valid Acc : 63.1146
+Train Loss : 0.020654	Train Acc : 63.5586
+Valid Loss : 0.033799	Valid Acc : 63.0446
+Train Loss : 0.018006	Train Acc : 63.6077
+Valid Loss : 0.044316	Valid Acc : 62.8662
+Train Loss : 0.016047	Train Acc : 63.6375
+Valid Loss : 0.031938	Valid Acc : 63.1401
+Train Loss : 0.015220	Train Acc : 63.6652
+Valid Loss : 0.027044	Valid Acc : 63.2611
+
+
+
+Activation : ELU	Learning rate : 0.0001
+cuda
+Train data 	60000
+Valid data 	10000
+Train Loss : 0.080932	Train Acc : 62.5171
+Valid Loss : 0.039647	Valid Acc : 62.9363
+Train Loss : 0.029587	Train Acc : 63.3603
+Valid Loss : 0.028285	Valid Acc : 63.1720
+Train Loss : 0.021113	Train Acc : 63.5224
+Valid Loss : 0.036634	Valid Acc : 62.9236
+Train Loss : 0.015798	Train Acc : 63.6471
+Valid Loss : 0.028420	Valid Acc : 63.0701
+Train Loss : 0.014081	Train Acc : 63.6716
+Valid Loss : 0.026490	Valid Acc : 63.1401
+Train Loss : 0.011921	Train Acc : 63.7143
+Valid Loss : 0.021772	Valid Acc : 63.3121
+Train Loss : 0.010169	Train Acc : 63.7420
+Valid Loss : 0.038433	Valid Acc : 62.9363
+Train Loss : 0.009042	Train Acc : 63.7836
+Valid Loss : 0.028726	Valid Acc : 63.1656
+Train Loss : 0.008156	Train Acc : 63.7964
+Valid Loss : 0.022734	Valid Acc : 63.2548
+Train Loss : 0.005022	Train Acc : 63.8699
+Valid Loss : 0.025959	Valid Acc : 63.2548
+
+
+
