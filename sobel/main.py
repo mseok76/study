@@ -1,9 +1,9 @@
 from PIL import Image
 import torchvision.transforms as transforms
-from torchvision.traforms import ToPILImage
+from torchvision.transforms import ToPILImage
 from model import Sobel_filter
 import argparse
-import time
+import datetime
 import torch
 
 parser = argparse.ArgumentParser()
@@ -24,11 +24,15 @@ def main():
 
     Sobel = Sobel_filter()
     sobel_image = Sobel(img_tensor)
-    sobel_image = ToPILImage(sobel_image.unsqueeze())
-    save_path = './result/'+time.time()+'.jpg'
+
+    sobel_image = ToPILImage()(sobel_image.squeeze())
+    sobel_image.show()
+
+    time = datetime.datetime.now().strftime('%d_%H%M')
+    save_path = './result/'+time+'.jpg'
     sobel_image.save(save_path)
 
-
-
+if(__name__ == "__main__"):
+    main()
 
 
