@@ -6,30 +6,6 @@ Knowledge Distillation Tutorial
 """ 
 
 ######################################################################
-# Knowledge distillation is a technique that enables knowledge transfer from large, computationally expensive
-# models to smaller ones without losing validity. This allows for deployment on less powerful
-# hardware, making evaluation faster and more efficient. 
-#
-# In this tutorial, we will run a number of experiments focused at improving the accuracy of a
-# lightweight neural network, using a more powerful network as a teacher.
-# The computational cost and the speed of the lightweight network will remain unaffected,
-# our intervention only focuses on its weights, not on its forward pass.
-# Applications of this technology can be found in devices such as drones or mobile phones.
-# In this tutorial, we do not use any external packages as everything we need is available in ``torch`` and
-# ``torchvision``.
-#
-# In this tutorial, you will learn:
-#
-# - How to modify model classes to extract hidden representations and use them for further calculations
-# - How to modify regular train loops in PyTorch to include additional losses on top of, for example, cross-entropy for classification 
-# - How to improve the performance of lightweight models by using more complex models as teachers
-#
-# Prerequisites
-# ~~~~~~~~~~~~~
-#
-# * 1 GPU, 4GB of memory
-# * PyTorch v2.0 or later 
-# * CIFAR-10 dataset (downloaded by the script and saved in a directory called ``/data``)
 
 import torch
 import torch.nn as nn
@@ -43,28 +19,6 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")   #사용�
 ######################################################################
 # Loading CIFAR-10
 # ----------------
-# CIFAR-10 is a popular image dataset with ten classes. Our objective is to predict one of the following classes for each input image.
-#
-# .. figure:: /../_static/img/cifar10.png 
-#    :align: center
-#    
-#    Example of CIFAR-10 images
-#
-# The input images are RGB, so they have 3 channels and are 32x32 pixels. Basically, each image is described by 3 x 32 x 32 = 3072 numbers ranging from 0 to 255.
-# A common practice in neural networks is to normalize the input, which is done for multiple reasons,
-# including avoiding saturation in commonly used activation functions and increasing numerical stability.
-# Our normalization process consists of subtracting the mean and dividing by the standard deviation along each channel.
-# The tensors "mean=[0.485, 0.456, 0.406]" and "std=[0.229, 0.224, 0.225]" were already computed,
-# and they represent the mean and standard deviation of each channel in the
-# predefined subset of CIFAR-10 intended to be the training set.
-# Notice how we use these values for the test set as well, without recomputing the mean and standard deviation from scratch.
-# This is because the network was trained on features produced by subtracting and dividing the numbers above, and we want to maintain consistency.
-# Furthermore, in real life, we would not be able to compute the mean and standard deviation of the test set since,
-# under our assumptions, this data would not be accessible at that point.
-# 
-# As a closing point, we often refer to this held-out set as the validation set, and we use a separate set,
-# called the test set, after optimizing a model's performance on the validation set.
-# This is done to avoid selecting a model based on the greedy and biased optimization of a single metric.
 
 # Below we are preprocessing data for CIFAR-10. We use an arbitrary batch size of 128.
 transforms_cifar = transforms.Compose([
@@ -78,14 +32,6 @@ test_dataset = datasets.CIFAR10(root='./data', train=False, download=True, trans
 #torchvision 내장으로 CIFAR10 dataset 다운로드
 
 ########################################################################
-# .. note:: This section is for CPU users only who are interested in quick results. Use this option only if you're interested in a small scale experiment. Keep in mind the code should run fairly quickly using any GPU. Select only the first ``num_images_to_keep`` images from the train/test dataset
-#
-#    .. code-block:: python
-#
-#       #from torch.utils.data import Subset
-#       #num_images_to_keep = 2000
-#       #train_dataset = Subset(train_dataset, range(min(num_images_to_keep, 50_000)))
-#       #test_dataset = Subset(test_dataset, range(min(num_images_to_keep, 10_000)))
 
 #Dataloaders
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=2)
@@ -94,10 +40,6 @@ test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=128, shuffle=
 
 ######################################################################
 # Defining model classes and utility functions
-# --------------------------------------------
-# Next, we need to define our model classes. Several user-defined parameters need to be set here. We use two different architectures, keeping the number of filters fixed across our experiments to ensure fair comparisons.
-# Both architectures are Convolutional Neural Networks (CNNs) with a different number of convolutional layers that serve as feature extractors, followed by a classifier with 10 classes. 
-# The number of filters and neurons is smaller for the students.
 
 # Deeper neural network class to be used as teacher:
 class DeepNN(nn.Module):
@@ -157,22 +99,6 @@ class LightNN(nn.Module):
         return x
 
 ######################################################################
-# We employ 2 functions to help us produce and evaluate the results on our original classification task.
-# One function is called ``train`` and takes the following arguments:
-#
-# - ``model``: A model instance to train (update its weights) via this function.
-# - ``train_loader``: We defined our ``train_loader`` above, and its job is to feed the data into the model.
-# - ``epochs``: How many times we loop over the dataset.
-# - ``learning_rate``: The learning rate determines how large our steps towards convergence should be. Too large or too small steps can be detrimental.
-# - ``device``: Determines the device to run the workload on. Can be either CPU or GPU depending on availability.
-#
-# Our test function is similar, but it will be invoked with ``test_loader`` to load images from the test set.
-#
-# .. figure:: /../_static/img/knowledge_distillation/ce_only.png 
-#    :align: center
-#    
-#    Train both networks with Cross-Entropy. The student will be used as a baseline:
-#
 
 def train(model, train_loader, epochs, learning_rate, device):
     #train function, get model object, dataloader, parameters
@@ -222,12 +148,6 @@ def test(model, test_loader, device):
     print(f"Test Accuracy: {accuracy:.2f}%")
     return accuracy
 
-######################################################################
-# Cross-entropy runs
-# ------------------
-# For reproducibility, we need to set the torch manual seed. We train networks using different methods, so to compare them fairly,
-# it makes sense to initialize the networks with the same weights.
-# Start by training the teacher network using cross-entropy:
 
 torch.manual_seed(42)   #fix seed , control random values
 nn_deep = DeepNN(num_classes=10).to(device)
@@ -238,17 +158,10 @@ test_accuracy_deep = test(nn_deep, test_loader, device)
 torch.manual_seed(42)
 nn_light = LightNN(num_classes=10).to(device)
 
-######################################################################
-# We instantiate one more lightweight network model to compare their performances.
-# Back propagation is sensitive to weight initialization,
-# so we need to make sure these two networks have the exact same initialization.
 
 torch.manual_seed(42)
 new_nn_light = LightNN(num_classes=10).to(device)
 
-######################################################################
-# To ensure we have created a copy of the first network, we inspect the norm of its first layer.
-# If it matches, then we are safe to conclude that the networks are indeed the same.
 
 # Print the norm of the first layer of the initial lightweight model
 print("Norm of 1st layer of nn_light:", torch.norm(nn_light.features[0].weight).item())
@@ -262,7 +175,7 @@ total_params_deep = "{:,}".format(sum(p.numel() for p in nn_deep.parameters()))
 print(f"DeepNN parameters: {total_params_deep}")
 total_params_light = "{:,}".format(sum(p.numel() for p in nn_light.parameters()))
 print(f"LightNN parameters: {total_params_light}")
-#total parameters,
+
 
 ######################################################################
 # Train and test the lightweight network with cross entropy loss:
@@ -297,20 +210,21 @@ def train_knowledge_distillation(teacher, student, train_loader, epochs, learnin
 
             # Forward pass with the teacher model - do not save gradients here as we do not change the teacher's weights
             with torch.no_grad():
-                teacher_logits = teacher(inputs)
+                teacher_logits = teacher(inputs)    #teacher logits == output of teacher model
 
             # Forward pass with the student model
             student_logits = student(inputs)
 
             #Soften the student logits by applying softmax first and log() second
-            soft_targets = nn.functional.softmax(teacher_logits / T, dim=-1)
-            soft_prob = nn.functional.log_softmax(student_logits / T, dim=-1)
+            soft_targets = nn.functional.softmax(teacher_logits / T, dim=-1)    #softmax logits with Temperature
+            soft_prob = nn.functional.log_softmax(student_logits / T, dim=-1)   #log scale
 
             # Calculate the soft targets loss. Scaled by T**2 as suggested by the authors of the paper "Distilling the knowledge in a neural network"
             soft_targets_loss = -torch.sum(soft_targets * soft_prob) / soft_prob.size()[0] * (T**2)
+            # 두 모델간의 softmax 출력 차이 loss
 
             # Calculate the true label loss
-            label_loss = ce_loss(student_logits, labels)
+            label_loss = ce_loss(student_logits, labels)    #accuracy of student model
 
             # Weighted sum of the two losses
             loss = soft_target_loss_weight * soft_targets_loss + ce_loss_weight * label_loss
@@ -333,37 +247,8 @@ print(f"Student accuracy with CE + KD: {test_accuracy_light_ce_and_kd:.2f}%")
 
 ######################################################################
 # Cosine loss minimization run
-# ----------------------------
-# Feel free to play around with the temperature parameter that controls the softness of the softmax function and the loss coefficients.
-# In neural networks, it is easy to include to include additional loss functions to the main objectives to achieve goals like better generalization.
-# Let's try including an objective for the student, but now let's focus on their hidden states rather than their output layers.
-# Our goal is to convey information from the teacher's representation to the student by including a naive loss function,
-# whose minimization implies that the flattened vectors that are subsequently passed to the classifiers have become more *similar* as the loss decreases.
-# Of course, the teacher does not update its weights, so the minimization depends only on the student's weights.
-# The rationale behind this method is that we are operating under the assumption that the teacher model has a better internal representation that is
-# unlikely to be achieved by the student without external intervention, therefore we artificially push the student to mimic the internal representation of the teacher.
-# Whether or not this will end up helping the student is not straightforward, though, because pushing the lightweight network
-# to reach this point could be a good thing, assuming that we have found an internal representation that leads to better test accuracy,
-# but it could also be harmful because the networks have different architectures and the student does not have the same learning capacity as the teacher.
-# In other words, there is no reason for these two vectors, the student's and the teacher's to match per component.
-# The student could reach an internal representation that is a permutation of the teacher's and it would be just as efficient.
-# Nonetheless, we can still run a quick experiment to figure out the impact of this method.
-# We will be using the ``CosineEmbeddingLoss`` which is given by the following formula:
-#
-# .. figure:: /../_static/img/knowledge_distillation/cosine_embedding_loss.png 
-#    :align: center
-#    :width: 450px
-#    
-#    Formula for CosineEmbeddingLoss
-#
-# Obviously, there is one thing that we need to resolve first.
-# When we applied distillation to the output layer we mentioned that both networks have the same number of neurons, equal to the number of classes.
-# However, this is not the case for the layer following our convolutional layers. Here, the teacher has more neurons than the student
-# after the flattening of the final convolutional layer. Our loss function accepts two vectors of equal dimensionality as inputs,
-# therefore we need to somehow match them. We will solve this by including an average pooling layer after the teacher's convolutional layer to reduce its dimensionality to match that of the student.
-#
-# To proceed, we will modify our model classes, or create new ones.
-# Now, the forward function returns not only the logits of the network but also the flattened hidden representation after the convolutional layer. We include the aforementioned pooling for the modified teacher.
+
+
 
 class ModifiedDeepNNCosine(nn.Module):
     def __init__(self, num_classes=10):
@@ -389,9 +274,9 @@ class ModifiedDeepNNCosine(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        flattened_conv_output = torch.flatten(x, 1)
-        x = self.classifier(flattened_conv_output)
-        flattened_conv_output_after_pooling = torch.nn.functional.avg_pool1d(flattened_conv_output, 2)
+        flattened_conv_output = torch.flatten(x, 1) #conv 이후 값 따로 출력
+        x = self.classifier(flattened_conv_output)  
+        flattened_conv_output_after_pooling = torch.nn.functional.avg_pool1d(flattened_conv_output, 2)  #aver pooling for match deminsion
         return x, flattened_conv_output_after_pooling
 
 # Create a similar student class where we return a tuple. We do not apply pooling after flattening.
@@ -417,15 +302,16 @@ class ModifiedLightNNCosine(nn.Module):
         x = self.features(x)
         flattened_conv_output = torch.flatten(x, 1)
         x = self.classifier(flattened_conv_output)
-        return x, flattened_conv_output
+        return x, flattened_conv_output #return output & hidden layer
 
 # We do not have to train the modified deep network from scratch of course, we just load its weights from the trained instance
 modified_nn_deep = ModifiedDeepNNCosine(num_classes=10).to(device)
-modified_nn_deep.load_state_dict(nn_deep.state_dict())
+modified_nn_deep.load_state_dict(nn_deep.state_dict())  #call teacher model state
 
 # Once again ensure the norm of the first layer is the same for both networks
 print("Norm of 1st layer for deep_nn:", torch.norm(nn_deep.features[0].weight).item())
 print("Norm of 1st layer for modified_deep_nn:", torch.norm(modified_nn_deep.features[0].weight).item())
+#two model's 1st layer is same
 
 # Initialize a modified lightweight network with the same seed as our other lightweight instances. This will be trained from scratch to examine the effectiveness of cosine loss minimization.
 torch.manual_seed(42)
@@ -437,10 +323,11 @@ print("Norm of 1st layer:", torch.norm(modified_nn_light.features[0].weight).ite
 # we can print their shapes.
 
 # Create a sample input tensor
-sample_input = torch.randn(128, 3, 32, 32).to(device) # Batch size: 128, Filters: 3, Image size: 32x32
+sample_input = torch.randn(128, 3, 32, 32).to(device) # Batch size: 128, Filters: 3, Image size: 32x32 
+    #for random input
 
 # Pass the input through the student
-logits, hidden_representation = modified_nn_light(sample_input)
+logits, hidden_representation = modified_nn_light(sample_input) # to print shape of return
 
 # Print the shapes of the tensors
 print("Student logits shape:", logits.shape) # batch_size x total_classes
@@ -454,20 +341,11 @@ print("Teacher logits shape:", logits.shape) # batch_size x total_classes
 print("Teacher hidden representation shape:", hidden_representation.shape) # batch_size x hidden_representation_size
 
 ######################################################################
-# In our case, ``hidden_representation_size`` is ``1024``. This is the flattened feature map of the final convolutional layer of the student and as you can see,
-# it is the input for its classifier. It is ``1024`` for the teacher too, because we made it so with ``avg_pool1d`` from ``2048``.
-# The loss applied here only affects the weights of the student prior to the loss calculation. In other words, it does not affect the classifier of the student.
-# The modified training loop is the following:
-#
-# .. figure:: /../_static/img/knowledge_distillation/cosine_loss_distillation.png 
-#    :align: center
-#    
-#    In Cosine Loss minimization, we want to maximize the cosine similarity of the two representations by returning gradients to the student:
-#
+
 
 def train_cosine_loss(teacher, student, train_loader, epochs, learning_rate, hidden_rep_loss_weight, ce_loss_weight, device):
     ce_loss = nn.CrossEntropyLoss()
-    cosine_loss = nn.CosineEmbeddingLoss()
+    cosine_loss = nn.CosineEmbeddingLoss()      #cosine loss function
     optimizer = optim.Adam(student.parameters(), lr=learning_rate)
 
     teacher.to(device)
@@ -480,18 +358,19 @@ def train_cosine_loss(teacher, student, train_loader, epochs, learning_rate, hid
         for inputs, labels in train_loader:
             inputs, labels = inputs.to(device), labels.to(device)
 
-            optimizer.zero_grad()
+            optimizer.zero_grad()   #reset gradient
 
             # Forward pass with the teacher model and keep only the hidden representation
             with torch.no_grad():
-                _, teacher_hidden_representation = teacher(inputs)
+                _, teacher_hidden_representation = teacher(inputs)  #get only hidden repersentation
 
             # Forward pass with the student model
             student_logits, student_hidden_representation = student(inputs)
 
             # Calculate the cosine loss. Target is a vector of ones. From the loss formula above we can see that is the case where loss minimization leads to cosine similarity increase.
             hidden_rep_loss = cosine_loss(student_hidden_representation, teacher_hidden_representation, target=torch.ones(inputs.size(0)).to(device))
-
+                #loss of hidden representation
+            
             # Calculate the true label loss
             label_loss = ce_loss(student_logits, labels)
 
@@ -519,7 +398,7 @@ def test_multiple_outputs(model, test_loader, device):
         for inputs, labels in test_loader:
             inputs, labels = inputs.to(device), labels.to(device)
 
-            outputs, _ = model(inputs) # Disregard the second tensor of the tuple
+            outputs, _ = model(inputs) # Disregard the second tensor of the tuple - modify here
             _, predicted = torch.max(outputs.data, 1)
 
             total += labels.size(0)
@@ -530,8 +409,6 @@ def test_multiple_outputs(model, test_loader, device):
     return accuracy
 
 ######################################################################
-# In this case, we could easily include both knowledge distillation and cosine loss minimization in the same function. It is common to combine methods to achieve better performance in teacher-student paradigms.
-# For now, we can run a simple train-test session.
 
 # Train and test the lightweight network with cross entropy loss
 train_cosine_loss(teacher=modified_nn_deep, student=modified_nn_light, train_loader=train_loader, epochs=10, learning_rate=0.001, hidden_rep_loss_weight=0.25, ce_loss_weight=0.75, device=device)
@@ -540,20 +417,7 @@ test_accuracy_light_ce_and_cosine_loss = test_multiple_outputs(modified_nn_light
 ######################################################################
 # Intermediate regressor run
 # --------------------------
-# Our naive minimization does not guarantee better results for several reasons, one being the dimensionality of the vectors.
-# Cosine similarity generally works better than Euclidean distance for vectors of higher dimensionality,
-# but we were dealing with vectors with 1024 components each, so it is much harder to extract meaningful similarities.
-# Furthermore, as we mentioned, pushing towards a match of the hidden representation of the teacher and the student is not supported by theory.
-# There are no good reasons why we should be aiming for a 1:1 match of these vectors.
-# We will provide a final example of training intervention by including an extra network called regressor.
-# The objective is to first extract the feature map of the teacher after a convolutional layer,
-# then extract a feature map of the student after a convolutional layer, and finally try to match these maps.
-# However, this time, we will introduce a regressor between the networks to facilitate the matching process.
-# The regressor will be trainable and ideally will do a better job than our naive cosine loss minimization scheme.
-# Its main job is to match the dimensionality of these feature maps so that we can properly define a loss function between the teacher and the student.
-# Defining such a loss function provides a teaching "path," which is basically a flow to back-propagate gradients that will change the student's weights.
-# Focusing on the output of the convolutional layers right before each classifier for our original networks, we have the following shapes:
-#
+
 
 # Pass the sample input only from the convolutional feature extractor
 convolutional_fe_output_student = nn_light.features(sample_input)
@@ -561,19 +425,10 @@ convolutional_fe_output_teacher = nn_deep.features(sample_input)
 
 # Print their shapes
 print("Student's feature extractor output shape: ", convolutional_fe_output_student.shape)
-print("Teacher's feature extractor output shape: ", convolutional_fe_output_teacher.shape)
+print("Teacher's feature extractor output shape: ", convolutional_fe_output_xteacher.shape)
 
 ######################################################################
-# We have 32 filters for the teacher and 16 filters for the student.
-# We will include a trainable layer that converts the feature map of the student to the shape of the feature map of the teacher.
-# In practice, we modify the lightweight class to return the hidden state after an intermediate regressor that matches the sizes of the convolutional
-# feature maps and the teacher class to return the output of the final convolutional layer without pooling or flattening.
-#
-# .. figure:: /../_static/img/knowledge_distillation/fitnets_knowledge_distill.png 
-#    :align: center
-#    
-#    The trainable layer matches the shapes of the intermediate tensors and Mean Squared Error (MSE) is properly defined:
-#
+#Regressor
 
 class ModifiedDeepNNRegressor(nn.Module):
     def __init__(self, num_classes=10):
@@ -602,7 +457,7 @@ class ModifiedDeepNNRegressor(nn.Module):
         conv_feature_map = x
         x = torch.flatten(x, 1)
         x = self.classifier(x)
-        return x, conv_feature_map
+        return x, conv_feature_map  #conv output before classifier
 
 class ModifiedLightNNRegressor(nn.Module):
     def __init__(self, num_classes=10):
@@ -617,7 +472,7 @@ class ModifiedLightNNRegressor(nn.Module):
         )
         # Include an extra regressor (in our case linear)
         self.regressor = nn.Sequential(
-            nn.Conv2d(16, 32, kernel_size=3, padding=1)
+            nn.Conv2d(16, 32, kernel_size=3, padding=1) 
         )
         self.classifier = nn.Sequential(
             nn.Linear(1024, 256),
@@ -628,15 +483,13 @@ class ModifiedLightNNRegressor(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        regressor_output = self.regressor(x)
+        regressor_output = self.regressor(x)    #match deminsion with regressor
         x = torch.flatten(x, 1)
         x = self.classifier(x)
-        return x, regressor_output
+        return x, regressor_output  
 
 ######################################################################
-# After that, we have to update our train loop again. This time, we extract the regressor output of the student, the feature map of the teacher,
-# we calculate the ``MSE`` on these tensors (they have the exact same shape so it's properly defined) and we back propagate gradients based on that loss,
-# in addition to the regular cross entropy loss of the classification task.
+# MSE Loss
 
 def train_mse_loss(teacher, student, train_loader, epochs, learning_rate, feature_map_weight, ce_loss_weight, device):
     ce_loss = nn.CrossEntropyLoss()
@@ -660,10 +513,10 @@ def train_mse_loss(teacher, student, train_loader, epochs, learning_rate, featur
                 _, teacher_feature_map = teacher(inputs)
 
             # Forward pass with the student model
-            student_logits, regressor_feature_map = student(inputs)
+            student_logits, regressor_feature_map = student(inputs) #output & feature map
 
             # Calculate the loss
-            hidden_rep_loss = mse_loss(regressor_feature_map, teacher_feature_map)
+            hidden_rep_loss = mse_loss(regressor_feature_map, teacher_feature_map)  #loss of feature map
 
             # Calculate the true label loss
             label_loss = ce_loss(student_logits, labels)
@@ -691,31 +544,11 @@ modified_nn_deep_reg.load_state_dict(nn_deep.state_dict())
 # Train and test once again
 train_mse_loss(teacher=modified_nn_deep_reg, student=modified_nn_light_reg, train_loader=train_loader, epochs=10, learning_rate=0.001, feature_map_weight=0.25, ce_loss_weight=0.75, device=device)
 test_accuracy_light_ce_and_mse_loss = test_multiple_outputs(modified_nn_light_reg, test_loader, device)
-
 ######################################################################
-# It is expected that the final method will work better than ``CosineLoss`` because now we have allowed a trainable layer between the teacher and the student,
-# which gives the student some wiggle room when it comes to learning, rather than pushing the student to copy the teacher's representation.
-# Including the extra network is the idea behind hint-based distillation.
+
 
 print(f"Teacher accuracy: {test_accuracy_deep:.2f}%")
 print(f"Student accuracy without teacher: {test_accuracy_light_ce:.2f}%")
 print(f"Student accuracy with CE + KD: {test_accuracy_light_ce_and_kd:.2f}%")
 print(f"Student accuracy with CE + CosineLoss: {test_accuracy_light_ce_and_cosine_loss:.2f}%")
 print(f"Student accuracy with CE + RegressorMSE: {test_accuracy_light_ce_and_mse_loss:.2f}%")
-
-######################################################################
-# Conclusion
-# --------------------------------------------
-# None of the methods above increases the number of parameters for the network or inference time,
-# so the performance increase comes at the little cost of calculating gradients during training.
-# In ML applications, we mostly care about inference time because training happens before the model deployment.
-# If our lightweight model is still too heavy for deployment, we can apply different ideas, such as post-training quantization.
-# Additional losses can be applied in many tasks, not just classification, and you can experiment with quantities like coefficients,
-# temperature, or number of neurons. Feel free to tune any numbers in the tutorial above,
-# but keep in mind, if you change the number of neurons / filters chances are a shape mismatch might occur.
-#
-# For more information, see:
-#
-# * `Hinton, G., Vinyals, O., Dean, J.: Distilling the knowledge in a neural network. In: Neural Information Processing System Deep Learning Workshop (2015) <https://arxiv.org/abs/1503.02531>`_
-#
-# * `Romero, A., Ballas, N., Kahou, S.E., Chassang, A., Gatta, C., Bengio, Y.: Fitnets: Hints for thin deep nets. In: Proceedings of the International Conference on Learning Representations (2015) <https://arxiv.org/abs/1412.6550>`_
