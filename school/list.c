@@ -1,4 +1,4 @@
-#include "linked_list.c"
+#include "header/linked_list.c"
 
 void main()
 {

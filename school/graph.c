@@ -1,7 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "graph_list.c"
-#include "graph_matrix.c"
+
+#include "header/graph_list.c"
+#include "header/graph_matrix.c"
 
 void main()
 {
