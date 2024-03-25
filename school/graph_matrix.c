@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #define MAX_NODE 100
 int GM[MAX_NODE][MAX_NODE];
 //FILE *fp;

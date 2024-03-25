@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #define MAX_NODE 100
 //FILE *fp;
 
@@ -20,8 +22,9 @@ void input_adjlist(node *a[], int *V, int *E){
     node *t;
     printf("\nInput number of node & edge\n");
     scanf("%d %d", V, E);
-    for(i = 0; i<*V; i++)
-    a[i] = '\0';
+    for(i = 0; i<*V; i++){
+        a[i] = NULL;
+    }
     for( j = 0; j<*E; j++){
         printf("\nInput two node consist of edge ->");
         scanf("%s", vertex);
@@ -41,9 +44,9 @@ void input_adjlist(node *a[], int *V, int *E){
 void print_adjlist(node *a[], int V){
 
     for(int i=0;i<V;i++){
-        printf('%3c',int2name(i));
-        while(a[i] != '\0'){    //자기자신도 출력
-            printf('%3c',int2name(a[i]->vertex));
+        printf("%3c",int2name(i));
+        while(a[i] != NULL){    //자기자신도 출력
+            printf("%3c",int2name(a[i]->vertex));
             a[i] = a[i]->next;
         }
         printf("\n");
