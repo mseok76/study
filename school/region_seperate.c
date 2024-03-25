@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-//xy 구분 잘하기...
-//10026과 유사..
+
 #define BLK 7
 
 int canvas[BLK][BLK] = {
@@ -16,8 +15,7 @@ void sector(int x, int y);
 int num=3;
 
 void main(){
-    //int x,y;
-    //scanf("%d %d",&x,&y);
+    //기존 Map 출력부
     printf("---Given Map---\n");
     for(int i =0;i<BLK;i++){
         for(int j=0;j<BLK;j++){
@@ -26,15 +24,17 @@ void main(){
         printf("\n");
     }
 
+    //모든 canvas 탐색하며 모든 sector 구분
     for(int i=0;i<BLK;i++){
         for(int j=0;j<BLK;j++){
             if(canvas[i][j] == 1){
-                sector(j,i);
+                sector(j,i);    //재귀 진입.
                 num++;
             }
         }
     }
 
+    //구역 숫자로 구별된 Map
     printf("---seperated Map---\n");
     for(int i =0;i<BLK;i++){
         for(int j=0;j<BLK;j++){
