@@ -19,12 +19,6 @@ void print_dlist(dnode *p);
 
 dnode *head, *tail;
 
-void main(){
-
-}
-
-
-
 
 
 void init_dlist()
