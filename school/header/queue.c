@@ -58,3 +58,27 @@ int queue_empty(){
     dnode *t = head->next;
     return (t == tail); 
 }
+
+void clear_queue()
+{
+    dnode *t, *s;
+    t = head->next;
+    while(t != tail)
+    {
+        s = t;
+        t = t->next;
+        free(s);
+    }
+    head->next = tail;
+    tail->prev = head;
+}
+
+void print_queue()
+{
+    dnode *t;
+    t = head->next;
+    while(t != tail) {
+        printf("%-6d", t->key);
+        t = t->next;
+    }
+}

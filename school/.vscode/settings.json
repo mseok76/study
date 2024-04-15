@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "name_card_mange": "c"
+        "name_card_mange": "c",
+        "queue_matrix": "c"
     }
 }

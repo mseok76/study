@@ -1,6 +1,8 @@
 #include "header/queue.c"
 #include "header/graph_matrix.c"
 
+int*check;
+
 void BFS_adjmatrix(int a[][MAX_NODE], int V)
 {
     int i, j;
@@ -18,4 +20,8 @@ void BFS_adjmatrix(int a[][MAX_NODE], int V)
     if(check[j] == 0){
     put( j);
     check[j] = 1;
+}
+    }
+    }
+    }
 }
