@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define MAX_NODE 100
+// #define MAX_NODE 100
 //FILE *fp;
 
 typedef struct _node{
