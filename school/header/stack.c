@@ -9,6 +9,7 @@ typedef struct _node
 
 node *head, *tail;
 
+int is_stack_empty();
 void print_stack();
 void clear();
 int pop();
@@ -53,7 +54,9 @@ void init_stack();
 //     }
 // }
 
-
+int is_stack_empty(){
+    return (head->next == tail);
+}
 
 void init_stack()
 {

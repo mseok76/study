@@ -1,5 +1,6 @@
-#include <Windows.h>
-
+//#include <Windows.h>
+//Only in windows
+//WSL is linux
 typedef long long LARGE_INTEGER;
 
 LARGE_INTEGER freq, start, stop;

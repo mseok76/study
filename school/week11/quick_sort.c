@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "../header/stack.h"
 
 #define MAX_CNT 10
 
@@ -42,40 +43,49 @@ void quick_sort(int *a, int N)
 }
 
 //non-recursion version
-// void quick_sort1(int *a, int N)
-// {
-// int v, t;
-// int i, j;
-// int l, r;
-// init_stack();
-// l = 0;
-// r = N-1;
-// push(r);
-// push(l);
-// while(!is_stack_empty()){
-// l = pop();
-// r = pop();
-// if(r-l+1 > 1) // termination
-// {
-// v = a[r];
-// i = l-1;
-// j = r;
-// while(1){
-// while(a[++i] < v);
-// while(a[--j] > v);
-// if(i >= j) break;
-// t = a[i];
-// a[i] = a[j];
-// a[j] = t;
-// }
-// t = a[i];
-// a[i] = a[r];
-// a[r] = t;
-// push(r);
-// push();
-// }
-// }
-// }
+void quick_sort1(int *a, int N)
+{
+    int v, t, k;
+    int i, j;
+    int l, r;
+    init_stack();
+    l = 0;
+    r = N-1;
+    push(r);
+    push(l);
+    while(!is_stack_empty()){
+        l = pop();
+        r = pop();
+        if(r-l+1 > 1) // termination
+        {
+            k = rand()%(r-l+1);
+            k += l;
+            t = a[r];
+            a[r] = a[k];
+            a[k] = t;
+
+            v = a[r];
+            i = l-1;
+            j = r;
+            while(1){
+                while(a[++i] < v);
+                while(a[--j] > v);
+                if(i >= j) break;
+                t = a[i];
+                a[i] = a[j];
+                a[j] = t;
+            }
+            t = a[i];
+            a[i] = a[r];
+            a[r] = t;
+
+            push(r);
+            push(i+1);
+            push(i-1);
+            push(l);
+        }
+    }
+}
 
 
 
@@ -87,7 +97,7 @@ int main(){
         printf("%5d",arr[i]);
     }
     printf("\n");
-    quick_sort(arr,MAX_CNT);
+    quick_sort1(arr,MAX_CNT);
     printf("\n");
     for(int i =0;i<MAX_CNT;i++){
         printf("%5d",arr[i]);
