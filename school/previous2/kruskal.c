@@ -5,7 +5,7 @@
 #define MAX_EDGE 100
 #define ONLY_FIND 0
 #define UNION 1
-//rufrhk JK AD FJ HI CD IJ AE QG DF AB
+//결과 JK AD FJ HI CD IJ AE QG DF AB
 
 typedef struct edge{
     int v1, v2;
@@ -47,7 +47,7 @@ void upheap(int h[], int k)     //수정 필요
 {
     int v;
     v = h[k];
-    while(Edge[h[k/2]].weight >= Edge[v].weight && k/2 >0){
+    while(Edge[h[k/2]].weight > Edge[v].weight && k >1){
         h[k] = h[k/2];
         k /= 2;
     }
@@ -60,14 +60,13 @@ void downheap(int h[], int k)       //수정 필요
     v = h[k];
     while(k <= nheap/2){
         i = k << 1;
-        if(i < nheap && Edge[h[i]].weight > Edge[h[i+1]].weight){
-        i++;
+        if(i < nheap && Edge[h[i]].weight > Edge[h[i+1]].weight)
+            i++;
         if(Edge[v].weight <= Edge[h[i]].weight) break;
         h[k] = h[i];
         k = i;
     }
     h[k] = v;
-    }
 }
 
 void visit(int e){
@@ -78,10 +77,12 @@ void visit(int e){
 
 int find_set(int elem, int asso, int flag){
     int i = elem, j = asso;
-    while(parent[i] >= 0)
+    while(parent[i] >= 0){
         i = parent[i];
-    while(parent[j] >= 0)
-        j = parent[ j];
+    }
+    while(parent[j] >= 0){
+        j = parent[j];
+    }
     if(flag == UNION && i != j)
         union_set(i, j);
     return (i != j);
@@ -114,7 +115,7 @@ void input_edge(edge e[], int *V, int *E){
     for( j = 0; j<*E; j++){
         printf("\nInput two nodes consisting of edge and its weight ->");
         fscanf(fp, "%s %d", vertex, &w);
-        vertex[2] = NULL;
+        vertex[2] = '\0';
         e[j].v1 = name2int(vertex[0]);
         e[j].v2 = name2int(vertex[1]);
         e[j].weight = w;
